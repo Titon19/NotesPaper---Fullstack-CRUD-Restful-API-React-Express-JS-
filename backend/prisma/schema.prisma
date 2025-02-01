@@ -1,0 +1,26 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url = env("DATABASE_URL")
+}
+
+model Notes {
+    id Int @id @default(autoincrement())
+    title String
+    content String
+    category_id Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    category Categories @relation(fields: [category_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Categories {
+    id Int @id @default(autoincrement())
+    name String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    notes Notes[]
+}
