@@ -13,10 +13,13 @@ const AppRouter = () => {
     <Router>
       <Routes path="/" element={<MainLayout />}>
         <Route index path="/" element={<Home />} />
+
+        {/* Routing Notes */}
         <Route path="/notes" element={<Notes />} />
         <Route path="/notes/create" element={<NotesCreate />} />
         <Route path="/notes/:id/edit" element={<NotesEdit />} />
 
+        {/* Routing Categories */}
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/create" element={<CategoriesCreate />} />
         <Route path="/categories/:id/edit" element={<CategoriesEdit />} />

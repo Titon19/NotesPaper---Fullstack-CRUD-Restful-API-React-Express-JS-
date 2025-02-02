@@ -61,7 +61,7 @@ const Index = () => {
                 </TableCell>
                 <TableCell className="flex gap-1">
                   <Button>
-                    <Link to={`/categorys/${category.id}/edit`}>
+                    <Link to={`/categories/${category.id}/edit`}>
                       <PencilSquareIcon />
                     </Link>
                   </Button>

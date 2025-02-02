@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Form from "@/components/Categories/Form";
 
-const Index = () => {
+const Create = () => {
   const {
     register,
     handleSubmit,
@@ -62,4 +62,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Create;

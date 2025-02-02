@@ -1,13 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const useGetCategories = (url) => {
+const useGetCategories = (url, id, setValue) => {
   const [categories, setCategories] = useState([]);
 
   const getData = async () => {
     try {
       const response = await axios.get(url);
-      setCategories(response.data);
+      const data = response.data;
+      setCategories(data);
+      if (setValue && data) {
+        setValue("name", data.name);
+      }
     } catch (error) {
       console.log(error.response?.data?.message);
     }
@@ -15,7 +19,7 @@ const useGetCategories = (url) => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [id, setValue]);
 
   return {
     categories,
