@@ -1,18 +1,32 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const notesController = require("../controller/notesController");
-const { body } = require("express-validator");
+import {
+  getAllNotes,
+  getEditNote,
+  createNote,
+  updateNote,
+  deleteNote,
+} from "../controller/notesController.js";
+import upload from "../utils/multerConfig.js";
+import errorValidation from "../validations/noteValidation.js";
+import authenticateToken from "../middleware/authMiddleware.js";
 
-const errorValidation = [
-  body("title").not().isEmpty().withMessage("Harap isi judul"),
-  body("content").not().isEmpty().withMessage("Harap isi konten"),
-  body("category_id").not().isEmpty().withMessage("Harap pilih kategori"),
-];
+router.get("/", authenticateToken, getAllNotes);
+router.get("/:id", authenticateToken, getEditNote);
+router.post(
+  "/",
+  upload.single("image"),
+  errorValidation,
+  authenticateToken,
+  createNote
+);
+router.put(
+  "/:id",
+  upload.single("image"),
+  errorValidation,
+  authenticateToken,
+  updateNote
+);
+router.delete("/:id", upload.single("image"), authenticateToken, deleteNote);
 
-router.get("/", notesController.getAllNotes);
-router.get("/:id", notesController.getEditNote);
-router.post("/", errorValidation, notesController.createNote);
-router.put("/:id", errorValidation, notesController.updateNote);
-router.delete("/:id", notesController.deleteNote);
-
-module.exports = router;
+export default router;

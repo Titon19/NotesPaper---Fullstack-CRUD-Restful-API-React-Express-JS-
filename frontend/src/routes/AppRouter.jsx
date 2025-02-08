@@ -8,11 +8,13 @@ import NotesEdit from "../pages/Notes/Edit";
 import Categories from "../pages/Categories/Index";
 import CategoriesCreate from "../pages/Categories/Create";
 import CategoriesEdit from "../pages/Categories/Edit";
+import Register from "@/pages/Auth/Register";
+import Login from "@/pages/Auth/Login";
 const AppRouter = () => {
   return (
     <Router>
       <Routes path="/" element={<MainLayout />}>
-        <Route index path="/" element={<Home />} />
+        <Route path="/" element={<Home />} />
 
         {/* Routing Notes */}
         <Route path="/notes" element={<Notes />} />
@@ -23,6 +25,9 @@ const AppRouter = () => {
         <Route path="/categories" element={<Categories />} />
         <Route path="/categories/create" element={<CategoriesCreate />} />
         <Route path="/categories/:id/edit" element={<CategoriesEdit />} />
+
+        <Route index path="/auth/login" element={<Login />} />
+        <Route path="/auth/register" element={<Register />} />
       </Routes>
     </Router>
   );

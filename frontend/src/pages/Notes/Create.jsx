@@ -1,12 +1,36 @@
 import MainLayout from "../../layouts/MainLayout";
-import axios from "axios";
+import axiosInstance from "../../../lib/axios";
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/solid";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useGetCategories from "@/hooks/useGetCategories";
 import Form from "@/components/Notes/Form";
+import { useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { VITE_BACKEND_URL } from "../../../lib/config";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { categories } = useGetCategories(`${VITE_BACKEND_URL}/api/categories`);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const validationRules = z.object({
+    title: z.string().min(1, "Harap isi judul"),
+    content: z.string().min(1, "Harap isi konten"),
+    category_id: z.string().min(1, "Harap pilih kategori"),
+    image: z
+      .any()
+      .refine(
+        (file) =>
+          !file || (file instanceof File && file.type.startsWith("image/")),
+        {
+          message: "File harus berupa gambar",
+        }
+      )
+      .nullable(),
+  });
+
   const {
     register,
     handleSubmit,
@@ -18,34 +42,35 @@ const Index = () => {
       title: "",
       content: "",
       category_id: "",
+      image: null,
     },
+    resolver: zodResolver(validationRules),
   });
 
-  const validationRules = {
-    title: {
-      required: "Harap isi judul",
-    },
-    content: {
-      required: "Harap isi konten",
-    },
-    category_id: {
-      required: "Harap pilih kategori",
-    },
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    setImagePreview(
+      file.type.startsWith("image/") && URL.createObjectURL(file)
+    );
   };
 
-  const { title, content, category_id } = validationRules;
-
-  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  const navigate = useNavigate();
-  const { categories } = useGetCategories(`${VITE_BACKEND_URL}/api/categories`);
-
   const onSubmit = async (data) => {
+    const formData = new FormData();
+
+    formData.append("title", data.title);
+    formData.append("content", data.content);
+    formData.append("category_id", data.category_id);
+    data.image?.[0] && formData.append("image", data.image[0]);
+
     try {
-      await axios.post(`${VITE_BACKEND_URL}/api/notes/`, data, {
+      await axiosInstance.post(`${VITE_BACKEND_URL}/api/notes/`, formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       });
+
       reset();
       navigate("/notes");
     } catch (error) {
@@ -68,9 +93,8 @@ const Index = () => {
           errors={errors}
           control={control}
           categories={categories}
-          category_id={category_id}
-          title={title}
-          content={content}
+          handleImageChange={handleImageChange}
+          imagePreview={imagePreview}
         />
       </MainLayout>
     </>

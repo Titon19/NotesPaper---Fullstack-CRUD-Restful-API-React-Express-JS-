@@ -15,8 +15,8 @@ const Index = () => {
           </div>
           <div>
             <p className="text-3xl font-bold">
-              Catatan simpel yang dibuat dengan React, Vite, Express.js dan
-              Tailwinds CSS
+              Catatan simpel yang dibuat dengan React, Vite, Express.js,
+              Tailwinds CSS, Prisma, dan JWT Authentication
             </p>
           </div>
         </div>

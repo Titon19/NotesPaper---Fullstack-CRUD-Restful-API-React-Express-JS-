@@ -17,7 +17,12 @@ const Header = () => {
               <Link to={"/notes"}>Notes</Link>
             </li>
             <li>
-              <Link to={"/categories"}>Kategori</Link>
+              <Link to={"/categories"}>Categories</Link>
+            </li>
+            <li className="flex gap-5 pl-7">
+              <Link to={"/auth/login"}>Login</Link>
+              <Link to={"/auth/register"}>Register</Link>
+              <Link to={"/logout"}>Logout</Link>
             </li>
           </ul>
         </div>

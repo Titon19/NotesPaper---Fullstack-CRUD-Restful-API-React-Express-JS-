@@ -1,40 +1,39 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const { validationResult } = require("express-validator");
+import prisma from "../utils/prisma.js";
+import { validationResult } from "express-validator";
 
 const errorFieldStatus = 400;
 const errorMessageStatus = 500;
 const successfullyStatus = 201;
 
-exports.getAllCategories = async (req, res) => {
+export const getAllCategories = async (req, res) => {
   try {
-    const categories = await prisma.categories.findMany({
+    const response = await prisma.categories.findMany({
       orderBy: {
         createdAt: "desc",
       },
     });
-    res.status(successfullyStatus).json(categories);
+    res.status(successfullyStatus).json(response);
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.getEditCategory = async (req, res) => {
+export const getEditCategory = async (req, res) => {
   const { id } = req.params;
   try {
-    const category = await prisma.categories.findUnique({
+    const response = await prisma.categories.findUnique({
       where: {
         id: Number(id),
       },
     });
 
-    res.status(successfullyStatus).json(category);
+    res.status(successfullyStatus).json(response);
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.createCategory = async (req, res) => {
+export const createCategory = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -43,18 +42,18 @@ exports.createCategory = async (req, res) => {
 
   const { name } = req.body;
   try {
-    const category = await prisma.categories.create({
+    const response = await prisma.categories.create({
       data: {
         name: name,
       },
     });
-    res.status(successfullyStatus).json(category);
+    res.status(successfullyStatus).json(response);
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.updateCategory = async (req, res) => {
+export const updateCategory = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -64,7 +63,7 @@ exports.updateCategory = async (req, res) => {
   const { name } = req.body;
 
   try {
-    const category = await prisma.categories.update({
+    const response = await prisma.categories.update({
       where: {
         id: Number(id),
       },
@@ -73,13 +72,13 @@ exports.updateCategory = async (req, res) => {
       },
     });
 
-    res.status(successfullyStatus).json(category);
+    res.status(successfullyStatus).json(response);
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res) => {
   const { id } = req.params;
   try {
     await prisma.categories.delete({

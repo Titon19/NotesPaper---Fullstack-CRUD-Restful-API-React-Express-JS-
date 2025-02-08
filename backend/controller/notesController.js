@@ -1,14 +1,15 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const { validationResult } = require("express-validator");
+import prisma from "../utils/prisma.js";
+import { validationResult } from "express-validator";
 
+import fs from "fs";
+import path from "path";
 const errorFieldStatus = 400;
 const errorMessageStatus = 500;
 const successfullyStatus = 201;
 
-exports.getAllNotes = async (req, res) => {
+export const getAllNotes = async (req, res) => {
   try {
-    const notes = await prisma.notes.findMany({
+    const response = await prisma.notes.findMany({
       include: {
         category: true,
       },
@@ -16,27 +17,28 @@ exports.getAllNotes = async (req, res) => {
         createdAt: "desc",
       },
     });
-    res.json(notes);
+
+    res.status(successfullyStatus).json(response);
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.getEditNote = async (req, res) => {
+export const getEditNote = async (req, res) => {
   const { id } = req.params;
   try {
-    const note = await prisma.notes.findUnique({
+    const response = await prisma.notes.findUnique({
       where: {
         id: Number(id),
       },
     });
-    res.json(note);
+    res.status(successfullyStatus).json(response);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.createNote = async (req, res) => {
+export const createNote = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -44,23 +46,26 @@ exports.createNote = async (req, res) => {
   }
 
   const { title, content, category_id } = req.body;
+  const imagePath = req.file && `/uploads/images/${req.file.filename}`;
   try {
-    const note = await prisma.notes.create({
+    const response = await prisma.notes.create({
       data: {
         title: title,
         content: content,
         category_id: Number(category_id),
+        image: imagePath,
       },
     });
+
     res
       .status(successfullyStatus)
-      .json({ data: note, message: "Note created successfully" });
+      .json({ data: response, message: "Note created successfully" });
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.updateNote = async (req, res) => {
+export const updateNote = async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -71,7 +76,34 @@ exports.updateNote = async (req, res) => {
   const { title, content, category_id } = req.body;
 
   try {
-    const note = await prisma.notes.update({
+    const existNote = await prisma.notes.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    !existNote && res.status(404).json({ error: "Note not found" });
+
+    let imagePath = existNote.image;
+
+    // mau upload ulang nih request imagenya di update
+    if (req.file) {
+      // cek dulu nih image tersedia apa ngga
+      if (existNote.image) {
+        // ambil dari direktori storage
+        const oldImagePath = path.join(__dirname, "../public", existNote.image);
+        // Kalo misalkan direktori lama atau old tersedia
+        if (fs.existsSync(oldImagePath)) {
+          // Hapus file dari storage
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+
+      // Kalo udah dihapus nah baru diganti yang baru di bawah ini
+      imagePath = `/uploads/images/${req.file.filename}`;
+    }
+
+    const response = await prisma.notes.update({
       where: {
         id: Number(id),
       },
@@ -79,25 +111,43 @@ exports.updateNote = async (req, res) => {
         title: title,
         content: content,
         category_id: Number(category_id),
+        image: imagePath,
       },
     });
 
     res
       .status(successfullyStatus)
-      .json({ data: note, message: "Note updated successfully" });
+      .json({ data: response, message: "Note updated successfully" });
   } catch (error) {
     res.status(errorMessageStatus).json({ error: error.message });
   }
 };
 
-exports.deleteNote = async (req, res) => {
+export const deleteNote = async (req, res) => {
   const { id } = req.params;
+
   try {
+    const existNote = await prisma.notes.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    !existNote && res.status(404).json({ error: "Note not found" });
+
+    if (existNote.image) {
+      const oldImagePath = path.join(__dirname, "../public", existNote.image);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
     await prisma.notes.delete({
       where: {
         id: Number(id),
       },
     });
+
     res.status(successfullyStatus).json({
       message: "Note deleted successfully",
     });

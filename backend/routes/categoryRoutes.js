@@ -1,16 +1,20 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const categoriesController = require("../controller/categoriesController");
-const { body } = require("express-validator");
 
-const errorValidation = [
-  body("name").not().isEmpty().withMessage("Harap isi nama kategori"),
-];
+import {
+  getAllCategories,
+  createCategory,
+  getEditCategory,
+  updateCategory,
+  deleteCategory,
+} from "../controller/categoriesController.js";
+import errorValidation from "../validations/categoryValidation.js";
+import authenticateToken from "../middleware/authMiddleware.js";
 
-router.get("/", categoriesController.getAllCategories);
-router.post("/", errorValidation, categoriesController.createCategory);
-router.get("/:id", categoriesController.getEditCategory);
-router.put("/:id", errorValidation, categoriesController.updateCategory);
-router.delete("/:id", categoriesController.deleteCategory);
+router.get("/", authenticateToken, getAllCategories);
+router.post("/", errorValidation, authenticateToken, createCategory);
+router.get("/:id", authenticateToken, getEditCategory);
+router.put("/:id", errorValidation, authenticateToken, updateCategory);
+router.delete("/:id", authenticateToken, deleteCategory);
 
-module.exports = router;
+export default router;

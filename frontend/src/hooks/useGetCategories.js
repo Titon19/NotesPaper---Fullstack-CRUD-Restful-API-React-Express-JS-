@@ -1,13 +1,16 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-
+import axiosInstance from "../../lib/axios";
 const useGetCategories = (url, id, setValue) => {
   const [categories, setCategories] = useState([]);
 
   const getData = async () => {
     try {
-      const response = await axios.get(url);
+      const response = await axiosInstance.get(url, {
+        withCredentials: true,
+      });
       const data = response.data;
+
       setCategories(data);
       if (setValue && data) {
         setValue("name", data.name);
@@ -19,7 +22,7 @@ const useGetCategories = (url, id, setValue) => {
 
   useEffect(() => {
     getData();
-  }, [id, setValue]);
+  }, [id, setValue, url]);
 
   return {
     categories,

@@ -1,11 +1,18 @@
 import MainLayout from "../../layouts/MainLayout";
-import axios from "axios";
+import axiosInstance from "../../../lib/axios";
 import { ArrowLeftCircleIcon } from "@heroicons/react/24/solid";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import Form from "@/components/Categories/Form";
+import { VITE_BACKEND_URL } from "../../../lib/config";
 
 const Create = () => {
+  const validationRules = z.object({
+    name: z.string().min(1, "Harap isi nama kategori"),
+  });
+
   const {
     register,
     handleSubmit,
@@ -15,25 +22,19 @@ const Create = () => {
     defaultValues: {
       name: "",
     },
+
+    resolver: zodResolver(validationRules),
   });
 
-  const validationRules = {
-    name: {
-      required: "Harap isi nama kategori",
-    },
-  };
-
-  const { name } = validationRules;
-
-  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     try {
-      await axios.post(`${VITE_BACKEND_URL}/api/categories/`, data, {
+      await axiosInstance.post(`${VITE_BACKEND_URL}/api/categories/`, data, {
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       });
       reset();
       navigate("/categories");
@@ -55,7 +56,6 @@ const Create = () => {
           register={register}
           handleSubmit={handleSubmit}
           errors={errors}
-          name={name}
         />
       </MainLayout>
     </>

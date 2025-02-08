@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../../lib/axios";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -18,14 +18,14 @@ import {
 import Modal from "../../components/Items/Modal";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
 import { Badge } from "@/components/ui/badge";
+import { VITE_BACKEND_URL } from "../../../lib/config";
 
 const Index = () => {
   const [notes, setNotes] = useState([]);
-  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   const getData = async () => {
     try {
-      const response = await axios.get(`${VITE_BACKEND_URL}/api/notes/`);
+      const response = await axiosInstance.get(`/api/notes`);
 
       setNotes(response.data);
     } catch (error) {
@@ -39,7 +39,7 @@ const Index = () => {
 
   const handleSubmit = async (id) => {
     try {
-      await axios.delete(`${VITE_BACKEND_URL}/api/notes/${id}`);
+      await axiosInstance.delete(`/api/notes/${id}`);
       getData();
     } catch (error) {
       console.log("Error: ", error.response?.data?.message);
@@ -63,6 +63,7 @@ const Index = () => {
               <TableHead className="text-wrap">Judul</TableHead>
               <TableHead>Konten</TableHead>
               <TableHead>Kategori</TableHead>
+              <TableHead>Gambar</TableHead>
               <TableHead>Tanggal Buat</TableHead>
               <TableHead>Aksi</TableHead>
             </tr>
@@ -75,6 +76,15 @@ const Index = () => {
                 <TableCell>{note.content}</TableCell>
                 <TableCell>
                   <Badge>{note.category.name}</Badge>
+                </TableCell>
+                <TableCell>
+                  <img
+                    src={`${VITE_BACKEND_URL}${note.image}`}
+                    className="rounded-xl"
+                    width={50}
+                    height={50}
+                    alt="Image"
+                  />
                 </TableCell>
                 <TableCell className="text-nowrap">
                   {formatDate(note.createdAt)}

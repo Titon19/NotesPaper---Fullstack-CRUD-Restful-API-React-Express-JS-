@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import {
   PencilSquareIcon,
   TrashIcon,
@@ -17,15 +16,17 @@ import {
 import Modal from "../../components/Items/Modal";
 import { useFormattedDate } from "@/hooks/useFormattedDate";
 import useGetCategories from "@/hooks/useGetCategories";
+import axiosInstance from "../../../lib/axios";
+import { VITE_BACKEND_URL } from "../../../lib/config";
+
 const Index = () => {
-  const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  const { categories, getData } = useGetCategories(
-    `${VITE_BACKEND_URL}/api/categories/`
-  );
+  const { categories, getData } = useGetCategories(`/api/categories/`);
 
   const handleSubmit = async (id) => {
     try {
-      await axios.delete(`${VITE_BACKEND_URL}/api/categories/${id}`);
+      await axiosInstance.delete(`${VITE_BACKEND_URL}/api/categories/${id}`, {
+        withCredentials: true,
+      });
       getData();
     } catch (error) {
       console.log("Error: ", error.response?.data?.message);
